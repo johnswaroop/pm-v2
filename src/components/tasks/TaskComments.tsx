@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -48,6 +49,11 @@ interface TaskCommentsProps {
 export function TaskComments({ taskId }: TaskCommentsProps) {
   const [comments, setComments] = useState<Comment[]>(MOCK_COMMENTS);
   const [newComment, setNewComment] = useState("");
+
+  useEffect(() => {
+    // This will be used to fetch comments when we implement the API
+    console.log("Fetching comments for task:", taskId);
+  }, [taskId]);
 
   const handleAddComment = () => {
     if (!newComment.trim()) return;

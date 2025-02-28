@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,14 +13,12 @@ import {
 } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
-import { Task } from "@/types/task";
-
-type TaskFormData = Omit<Task, "id">;
+import { Task, TaskFormData } from "@/types/task";
 
 interface TaskFormProps {
-  onSubmit: (task: TaskFormData) => void;
   initialData?: Task;
-  onCancel?: () => void;
+  onSubmit: (data: TaskFormData) => void;
+  onCancel: () => void;
 }
 
 const statusOptions = [
@@ -57,48 +57,56 @@ const priorityOptions = [
   },
 ] as const;
 
-export function TaskForm({ onSubmit, initialData, onCancel }: TaskFormProps) {
-  const [task, setTask] = useState({
+export function TaskForm({ initialData, onSubmit, onCancel }: TaskFormProps) {
+  const [formData, setFormData] = useState<TaskFormData>({
     title: initialData?.title || "",
     description: initialData?.description || "",
     status: initialData?.status || "todo",
     priority: initialData?.priority || "medium",
-    dueDate: initialData?.dueDate ? new Date(initialData.dueDate) : undefined,
-    timeEstimate: initialData?.timeEstimate || "",
+    dueDate: initialData?.dueDate || new Date().toISOString(),
+    assignee: initialData?.assignee || { name: "", avatar: "" },
+    timeEstimate: initialData?.timeEstimate || 0,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({
-      ...task,
-      dueDate: task.dueDate?.toISOString(),
-      timeEstimate: Number(task.timeEstimate) || 0,
+    onSubmit(formData);
+  };
+
+  const handleDateSelect = (date: Date | undefined) => {
+    setFormData({
+      ...formData,
+      dueDate: date ? date.toISOString() : new Date().toISOString(),
     });
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-2">
-        <label className="text-sm font-medium text-neutral-700">Title</label>
+        <label htmlFor="title" className="text-sm font-medium">
+          Title
+        </label>
         <Input
-          placeholder="Task title"
-          value={task.title}
-          onChange={(e) => setTask({ ...task, title: e.target.value })}
+          id="title"
+          value={formData.title}
+          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           required
           className="bg-white/70 backdrop-blur-xl border-neutral-200 focus:border-blue-500 transition-colors"
         />
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium text-neutral-700">
+        <label htmlFor="description" className="text-sm font-medium">
           Description
         </label>
         <Textarea
-          placeholder="Task description"
-          value={task.description}
-          onChange={(e) => setTask({ ...task, description: e.target.value })}
-          rows={3}
+          id="description"
+          value={formData.description}
+          onChange={(e) =>
+            setFormData({ ...formData, description: e.target.value })
+          }
           className="bg-white/70 backdrop-blur-xl border-neutral-200 focus:border-blue-500 transition-colors resize-none"
+          rows={3}
         />
       </div>
 
@@ -113,11 +121,13 @@ export function TaskForm({ onSubmit, initialData, onCancel }: TaskFormProps) {
                 className={`${
                   status.color
                 } cursor-pointer transition-all duration-200 ${
-                  task.status === status.value
+                  formData.status === status.value
                     ? "ring-2 ring-blue-500 ring-offset-2"
                     : "hover:ring-2 hover:ring-blue-200 hover:ring-offset-2"
                 }`}
-                onClick={() => setTask({ ...task, status: status.value })}
+                onClick={() =>
+                  setFormData({ ...formData, status: status.value })
+                }
               >
                 {status.label}
               </Badge>
@@ -137,11 +147,13 @@ export function TaskForm({ onSubmit, initialData, onCancel }: TaskFormProps) {
                 className={`backdrop-blur-xl border ${
                   priority.color
                 } cursor-pointer transition-all duration-200 ${
-                  task.priority === priority.value
+                  formData.priority === priority.value
                     ? "ring-2 ring-blue-500 ring-offset-2"
                     : "hover:ring-2 hover:ring-blue-200 hover:ring-offset-2"
                 }`}
-                onClick={() => setTask({ ...task, priority: priority.value })}
+                onClick={() =>
+                  setFormData({ ...formData, priority: priority.value })
+                }
               >
                 <span
                   className={`w-1.5 h-1.5 rounded-full ${priority.dotColor} mr-2`}
@@ -153,65 +165,64 @@ export function TaskForm({ onSubmit, initialData, onCancel }: TaskFormProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-neutral-700">
-            Due Date
-          </label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className={`w-full justify-start text-left font-normal bg-white/70 backdrop-blur-xl border-neutral-200 hover:bg-white/80 ${
-                  !task.dueDate && "text-neutral-500"
-                }`}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {task.dueDate ? format(task.dueDate, "PPP") : "Pick a date"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={task.dueDate}
-                onSelect={(date) => setTask({ ...task, dueDate: date })}
-                initialFocus
-                className="rounded-md border border-neutral-200"
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-neutral-700">
-            Time Estimate (hours)
-          </label>
-          <Input
-            type="number"
-            placeholder="0"
-            value={task.timeEstimate}
-            onChange={(e) => setTask({ ...task, timeEstimate: e.target.value })}
-            min="0"
-            step="0.5"
-            className="bg-white/70 backdrop-blur-xl border-neutral-200 focus:border-blue-500 transition-colors"
-          />
-        </div>
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Due Date</label>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-full justify-start text-left font-normal bg-white/70 backdrop-blur-xl border-neutral-200 hover:bg-white/80"
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {formData.dueDate
+                ? format(new Date(formData.dueDate), "PPP")
+                : "Pick a date"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={new Date(formData.dueDate)}
+              onSelect={handleDateSelect}
+              initialFocus
+              className="rounded-md border border-neutral-200"
+            />
+          </PopoverContent>
+        </Popover>
       </div>
 
-      <div className="flex justify-end space-x-3 pt-2">
-        {onCancel && (
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={onCancel}
-            className="bg-white/50 backdrop-blur-xl hover:bg-white/70 hover:shadow-sm hover:shadow-neutral-200/30"
-          >
-            Cancel
-          </Button>
-        )}
+      <div className="space-y-2">
+        <label htmlFor="timeEstimate" className="text-sm font-medium">
+          Time Estimate (hours)
+        </label>
+        <Input
+          id="timeEstimate"
+          type="number"
+          value={formData.timeEstimate}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              timeEstimate: Number(e.target.value) || 0,
+            })
+          }
+          min="0"
+          step="0.5"
+          className="bg-white/70 backdrop-blur-xl border-neutral-200 focus:border-blue-500 transition-colors"
+        />
+      </div>
+
+      <div className="flex justify-end gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          className="bg-white/70 hover:bg-white/80"
+        >
+          Cancel
+        </Button>
         <Button
           type="submit"
-          className="bg-gradient-to-r from-blue-500 to-sky-500 hover:shadow-md hover:shadow-blue-200/40"
+          className="bg-gradient-to-r from-blue-500 to-sky-500 text-white hover:shadow-md hover:shadow-blue-200/40"
         >
           {initialData ? "Update Task" : "Create Task"}
         </Button>

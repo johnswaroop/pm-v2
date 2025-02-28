@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Task, TaskFormData } from "@/types/task";
 import { TaskBoard } from "@/components/tasks/TaskBoard";
 import { TaskForm } from "@/components/tasks/TaskForm";
 import {
@@ -19,9 +20,8 @@ import {
 } from "@/components/ui/select";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Task } from "@/types/task";
 
-// Mock data for initial development
+// Mock data - Replace with actual data fetching
 const MOCK_TASKS: Task[] = [
   {
     id: "1",
@@ -42,10 +42,26 @@ const MOCK_TASKS: Task[] = [
     description: "Implement user authentication flow",
     status: "todo",
     priority: "medium",
-    dueDate: "2024-04-05",
-    timeEstimate: 5,
+    dueDate: "2024-04-15",
+    assignee: {
+      name: "Sarah Chen",
+      avatar: "",
+    },
+    timeEstimate: 16,
   },
-  // Add more mock tasks as needed
+  {
+    id: "3",
+    title: "API Integration",
+    description: "Connect frontend with backend services",
+    status: "review",
+    priority: "high",
+    dueDate: "2024-04-10",
+    assignee: {
+      name: "John Doe",
+      avatar: "",
+    },
+    timeEstimate: 12,
+  },
 ];
 
 type Priority = Task["priority"] | "all";
@@ -53,7 +69,7 @@ type Priority = Task["priority"] | "all";
 export default function TaskManagementPage() {
   const [tasks, setTasks] = useState<Task[]>(MOCK_TASKS);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [editingTask, setEditingTask] = useState<Task | undefined>();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterPriority, setFilterPriority] = useState<Priority>("all");
 
@@ -66,33 +82,33 @@ export default function TaskManagementPage() {
     return matchesSearch && matchesPriority;
   });
 
-  const handleCreateTask = (taskData: Omit<Task, "id">) => {
+  const handleCreateTask = (data: TaskFormData) => {
     const newTask: Task = {
+      ...data,
       id: Date.now().toString(),
-      ...taskData,
     };
     setTasks([...tasks, newTask]);
     setIsCreateModalOpen(false);
   };
 
-  const handleEditTask = (taskData: Partial<Task>) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === editingTask?.id ? { ...task, ...taskData } : task
-      )
-    );
-    setEditingTask(null);
+  const handleEditTask = (data: TaskFormData) => {
+    if (!editingTask) return;
+    const updatedTask: Task = {
+      ...data,
+      id: editingTask.id,
+    };
+    setTasks(tasks.map((t) => (t.id === editingTask.id ? updatedTask : t)));
+    setIsCreateModalOpen(false);
+    setEditingTask(undefined);
   };
 
   const handleDeleteTask = (taskId: string) => {
     setTasks(tasks.filter((task) => task.id !== taskId));
   };
 
-  const handleMoveTask = (taskId: string, newStatus: Task["status"]) => {
+  const handleMoveTask = (taskId: string, status: Task["status"]) => {
     setTasks(
-      tasks.map((task) =>
-        task.id === taskId ? { ...task, status: newStatus } : task
-      )
+      tasks.map((task) => (task.id === taskId ? { ...task, status } : task))
     );
   };
 
@@ -164,22 +180,24 @@ export default function TaskManagementPage() {
         <TaskBoard
           tasks={filteredTasks}
           onTaskCreate={() => setIsCreateModalOpen(true)}
-          onTaskEdit={(id) =>
-            setEditingTask(tasks.find((task) => task.id === id) || null)
-          }
+          onTaskEdit={(id) => {
+            const task = tasks.find((t) => t.id === id);
+            if (task) {
+              setEditingTask(task);
+              setIsCreateModalOpen(true);
+            }
+          }}
           onTaskDelete={handleDeleteTask}
-          onTaskMove={(id, status: Task["status"]) =>
-            handleMoveTask(id, status)
-          }
+          onTaskMove={handleMoveTask}
         />
       </div>
 
       {/* Create/Edit Task Modal */}
       <Dialog
-        open={isCreateModalOpen || !!editingTask}
-        onOpenChange={() => {
-          setIsCreateModalOpen(false);
-          setEditingTask(null);
+        open={isCreateModalOpen}
+        onOpenChange={(open) => {
+          setIsCreateModalOpen(open);
+          if (!open) setEditingTask(undefined);
         }}
       >
         <DialogContent className="sm:max-w-[500px] bg-white/95 backdrop-blur-xl border-neutral-200 shadow-lg">
@@ -193,7 +211,7 @@ export default function TaskManagementPage() {
             initialData={editingTask}
             onCancel={() => {
               setIsCreateModalOpen(false);
-              setEditingTask(null);
+              setEditingTask(undefined);
             }}
           />
         </DialogContent>

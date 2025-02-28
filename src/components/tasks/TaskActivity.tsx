@@ -2,6 +2,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
+import { useEffect } from "react";
 import {
   AlertCircle,
   Calendar,
@@ -80,6 +81,11 @@ interface TaskActivityProps {
 }
 
 export function TaskActivity({ taskId }: TaskActivityProps) {
+  useEffect(() => {
+    // This will be used to fetch activities when we implement the API
+    console.log("Fetching activities for task:", taskId);
+  }, [taskId]);
+
   const getActivityIcon = (type: Activity["type"]) => {
     switch (type) {
       case "status_change":

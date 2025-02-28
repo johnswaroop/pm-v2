@@ -72,7 +72,6 @@
 
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -87,8 +86,6 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export default function DesignSystem() {
-  const [activeTab, setActiveTab] = useState("colors");
-
   const colors = {
     primary: {
       light: "#60A5FA", // Soft blue
@@ -130,11 +127,7 @@ export default function DesignSystem() {
         </header>
 
         {/* Navigation */}
-        <Tabs
-          defaultValue="colors"
-          className="w-full"
-          onValueChange={setActiveTab}
-        >
+        <Tabs defaultValue="colors" className="w-full">
           <TabsList className="flex justify-center mb-16 bg-transparent">
             {["colors", "typography", "components", "spacing"].map((tab) => (
               <TabsTrigger
