@@ -1,0 +1,447 @@
+/**
+ * Design System Documentation
+ *
+ * Philosophy:
+ * This design system implements a modern, clean interface inspired by Apple's design language
+ * with a focus on subtle depth, frosted glass effects, and fluid interactions. The system
+ * prioritizes clarity and sophistication through:
+ *
+ * 1. Visual Hierarchy:
+ *    - Layered backgrounds for clear visual separation:
+ *      • Page backgrounds: from-blue-200 via-white to-sky-200 (strongest)
+ *      • Container backgrounds: bg-white/40 with backdrop-blur-xl (middle)
+ *      • Section backgrounds: bg-white/60 with backdrop-blur-xl (lighter)
+ *      • Component backgrounds: bg-white/90 with backdrop-blur-xl (lightest)
+ *
+ *    - Enhanced depth through shadows:
+ *      • Container elements: shadow-md shadow-blue-200/20
+ *      • Interactive elements: shadow-lg shadow-blue-200/30 on hover
+ *      • Modal dialogs: shadow-lg with bg-white/95
+ *
+ *    - Interactive states:
+ *      • Primary actions: from-blue-600 to-sky-600 gradients
+ *      • Hover states: Increased shadow intensity and scale transforms
+ *      • Focus states: blue-500 borders and rings
+ *
+ * 2. Color System:
+ *    - Primary: Blue scale (#60A5FA to #2563EB) for key actions and focus states
+ *    - Secondary: Sky scale (#F0F9FF to #0369A1) for supporting elements
+ *    - Neutral: Slate scale for text and subtle backgrounds
+ *
+ * 3. Component Guidelines:
+ *    a. shadcn/ui Usage:
+ *       - Prefer shadcn/ui components as the foundation for all UI elements
+ *       - Components to use from shadcn/ui:
+ *         • Button: For all action elements
+ *         • Card: For container components
+ *         • Input: For form fields
+ *         • Select: For dropdown menus
+ *         • Badge: For status chips and tags
+ *         • Tabs: For navigation elements
+ *       - Extend shadcn/ui components with custom styles when needed
+ *
+ *    b. Custom Components:
+ *       - Build on top of shadcn/ui base components
+ *       - Maintain consistent styling with shadcn/ui primitives
+ *       - Use similar animation durations (duration-300)
+ *       - Match shadcn/ui's focus states and interactions
+ *
+ * 4. Spacing System:
+ *    - Base unit: 4px
+ *    - Scaled increments: 4, 8, 12, 16, 24, 32px
+ *    - Consistent padding: p-8 for containers, p-6 for cards
+ *
+ * 5. Typography:
+ *    - Scale: text-sm to text-6xl
+ *    - Weights: medium (500) to bold (700)
+ *    - Colors: Neutral scale for optimal readability
+ *
+ * Implementation Notes:
+ * - Uses shadcn/ui as the primary component library
+ * - Extends Tailwind CSS for custom styling
+ * - Implements React state for component management
+ * - Uses CSS Grid and Flexbox for layouts
+ * - Maintains consistent transitions (duration-300)
+ *
+ * shadcn/ui Integration:
+ * - Install components: npx shadcn-ui@latest add [component-name]
+ * - Customize theme in globals.css
+ * - Extend components using cn() utility for class merging
+ * - Use shadcn/ui hooks for complex interactions
+ */
+
+"use client";
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+
+export default function DesignSystem() {
+  const [activeTab, setActiveTab] = useState("colors");
+
+  const colors = {
+    primary: {
+      light: "#60A5FA", // Soft blue
+      default: "#3B82F6", // Primary blue
+      dark: "#2563EB", // Deep blue
+    },
+    secondary: {
+      light: "#F0F9FF", // Light sky
+      default: "#E0F2FE", // Soft sky
+      dark: "#0369A1", // Deep sky
+    },
+    neutral: {
+      50: "#F8FAFC",
+      100: "#F1F5F9",
+      200: "#E2E8F0",
+      300: "#CBD5E1",
+      400: "#94A3B8",
+      500: "#64748B",
+      600: "#475569",
+      700: "#334155",
+      800: "#1E293B",
+      900: "#0F172A",
+    },
+    success: "#10B981",
+    warning: "#F59E0B",
+    error: "#EF4444",
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-sky-50">
+      <div className="max-w-7xl mx-auto p-8">
+        <header className="mb-16 text-center">
+          <h1 className="text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-sky-500">
+            Design System
+          </h1>
+          <p className="text-lg text-neutral-600">
+            Project Management System • Modern & Refined
+          </p>
+        </header>
+
+        {/* Navigation */}
+        <Tabs
+          defaultValue="colors"
+          className="w-full"
+          onValueChange={setActiveTab}
+        >
+          <TabsList className="flex justify-center mb-16 bg-transparent">
+            {["colors", "typography", "components", "spacing"].map((tab) => (
+              <TabsTrigger
+                key={tab}
+                value={tab}
+                className="px-6 py-3 data-[state=active]:bg-white data-[state=active]:text-blue-500 data-[state=active]:shadow-md data-[state=active]:shadow-blue-100/30"
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+
+          <TabsContent value="colors">
+            <section className="space-y-12">
+              <Card className="backdrop-blur-xl bg-white/50">
+                <CardHeader>
+                  <h2 className="text-3xl font-semibold text-neutral-800">
+                    Color System
+                  </h2>
+                </CardHeader>
+                <CardContent>
+                  {/* Primary Colors */}
+                  <div className="space-y-8">
+                    <div>
+                      <h3 className="text-lg font-medium mb-4 text-neutral-700">
+                        Primary Blue
+                      </h3>
+                      <div className="grid grid-cols-3 gap-4">
+                        {Object.entries(colors.primary).map(([key, value]) => (
+                          <div key={key} className="space-y-2">
+                            <div
+                              className="h-24 rounded-md shadow-lg transition-transform hover:scale-105"
+                              style={{ backgroundColor: value }}
+                            />
+                            <p className="font-medium text-sm text-neutral-600 capitalize">
+                              {key}
+                            </p>
+                            <code className="text-sm text-neutral-500">
+                              {value}
+                            </code>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="text-lg font-medium mb-4 text-neutral-700">
+                        Secondary Sky
+                      </h3>
+                      <div className="grid grid-cols-3 gap-4">
+                        {Object.entries(colors.secondary).map(
+                          ([key, value]) => (
+                            <div key={key} className="space-y-2">
+                              <div
+                                className="h-24 rounded-md shadow-lg transition-transform hover:scale-105"
+                                style={{ backgroundColor: value }}
+                              />
+                              <p className="font-medium text-sm text-neutral-600 capitalize">
+                                {key}
+                              </p>
+                              <code className="text-sm text-neutral-500">
+                                {value}
+                              </code>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+          </TabsContent>
+
+          <TabsContent value="components">
+            <section className="space-y-12">
+              {/* Buttons */}
+              <Card className="backdrop-blur-xl bg-white/50">
+                <CardHeader>
+                  <h3 className="text-2xl font-semibold text-neutral-800">
+                    Buttons
+                  </h3>
+                </CardHeader>
+                <CardContent className="flex flex-wrap gap-4">
+                  <Button className="bg-gradient-to-r from-blue-500 to-sky-500 hover:shadow-md hover:shadow-blue-200/40">
+                    Primary Action
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    className="bg-white text-blue-500 hover:shadow-md hover:shadow-blue-200/30"
+                  >
+                    Secondary Action
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="bg-white/50 backdrop-blur-xl hover:shadow-md hover:shadow-neutral-200/30"
+                  >
+                    Tertiary Action
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Cards */}
+              <Card className="backdrop-blur-xl bg-white/50">
+                <CardHeader>
+                  <h3 className="text-2xl font-semibold text-neutral-800">
+                    Cards
+                  </h3>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="backdrop-blur-xl bg-white/60 p-6 rounded-md shadow-sm shadow-blue-100/10 hover:shadow-md hover:shadow-blue-200/20 transition-all duration-300">
+                    <h4 className="text-lg font-medium mb-3 text-neutral-800">
+                      Frosted Card
+                    </h4>
+                    <p className="text-neutral-600">
+                      Clean and minimal card with frosted glass effect.
+                    </p>
+                  </div>
+                  <div className="bg-gradient-to-br from-blue-50 to-sky-50 p-6 rounded-md shadow-sm shadow-blue-100/10 hover:shadow-md hover:shadow-blue-200/20 transition-all duration-300">
+                    <h4 className="text-lg font-medium mb-3 text-neutral-800">
+                      Gradient Card
+                    </h4>
+                    <p className="text-neutral-600">
+                      Subtle gradient background for visual hierarchy.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Chips and Tags */}
+              <Card className="backdrop-blur-xl bg-white/50">
+                <CardHeader>
+                  <h3 className="text-2xl font-semibold text-neutral-800">
+                    Chips & Tags
+                  </h3>
+                </CardHeader>
+                <CardContent>
+                  {/* Status Chips */}
+                  <div className="mb-8">
+                    <h4 className="text-lg font-medium mb-4 text-neutral-700">
+                      Status Chips
+                    </h4>
+                    <div className="flex flex-wrap gap-3">
+                      <Badge
+                        variant="secondary"
+                        className="bg-white/70 text-blue-500"
+                      >
+                        Active
+                      </Badge>
+                      <Badge
+                        variant="secondary"
+                        className="bg-sky-50/70 text-sky-600"
+                      >
+                        In Progress
+                      </Badge>
+                      <Badge
+                        variant="secondary"
+                        className="bg-green-50/70 text-green-600"
+                      >
+                        Completed
+                      </Badge>
+                    </div>
+                  </div>
+
+                  {/* Priority Tags */}
+                  <div>
+                    <h4 className="text-lg font-medium mb-4 text-neutral-700">
+                      Priority Tags
+                    </h4>
+                    <div className="flex flex-wrap gap-3">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-white/50 backdrop-blur-xl border border-blue-200 text-blue-500">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mr-2"></span>
+                        High Priority
+                      </span>
+                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-white/50 backdrop-blur-xl border border-sky-200 text-sky-500">
+                        <span className="w-1.5 h-1.5 rounded-full bg-sky-500 mr-2"></span>
+                        Medium Priority
+                      </span>
+                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-white/50 backdrop-blur-xl border border-neutral-200 text-neutral-500">
+                        <span className="w-1.5 h-1.5 rounded-full bg-neutral-500 mr-2"></span>
+                        Low Priority
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Form Elements */}
+              <Card className="backdrop-blur-xl bg-white/50">
+                <CardHeader>
+                  <h3 className="text-2xl font-semibold text-neutral-800">
+                    Form Elements
+                  </h3>
+                </CardHeader>
+                <CardContent className="space-y-6 max-w-md">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-neutral-700">
+                      Input Field
+                    </label>
+                    <Input
+                      placeholder="Enter text..."
+                      className="bg-white/70 backdrop-blur-xl"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-neutral-700">
+                      Select Menu
+                    </label>
+                    <Select>
+                      <SelectTrigger className="bg-white/70 backdrop-blur-xl">
+                        <SelectValue placeholder="Select an option" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">Option 1</SelectItem>
+                        <SelectItem value="2">Option 2</SelectItem>
+                        <SelectItem value="3">Option 3</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+          </TabsContent>
+
+          {/* Typography Section */}
+          <TabsContent value="typography">
+            <section className="backdrop-blur-xl bg-white/50 rounded-lg p-8 shadow-md shadow-blue-100/10">
+              <h2 className="text-3xl font-semibold mb-8 text-neutral-800">
+                Typography
+              </h2>
+
+              <div className="space-y-12">
+                <div>
+                  <h1 className="text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-sky-500">
+                    Display Heading
+                  </h1>
+                  <code className="text-sm text-neutral-500">
+                    text-6xl font-bold + gradient
+                  </code>
+                </div>
+
+                <div>
+                  <h2 className="text-4xl font-semibold mb-3 text-neutral-800">
+                    Section Heading
+                  </h2>
+                  <code className="text-sm text-neutral-500">
+                    text-4xl font-semibold
+                  </code>
+                </div>
+
+                <div>
+                  <h3 className="text-2xl font-medium mb-3 text-neutral-700">
+                    Subsection Title
+                  </h3>
+                  <code className="text-sm text-neutral-500">
+                    text-2xl font-medium
+                  </code>
+                </div>
+
+                <div>
+                  <p className="text-lg text-neutral-600 mb-3 leading-relaxed">
+                    Body text with increased line height for better readability.
+                    This text style will be used for main content areas
+                    throughout the application.
+                  </p>
+                  <code className="text-sm text-neutral-500">
+                    text-lg text-neutral-600 leading-relaxed
+                  </code>
+                </div>
+
+                <div>
+                  <p className="text-sm text-neutral-500 mb-3">
+                    Small text for captions, metadata, and supporting
+                    information.
+                  </p>
+                  <code className="text-sm text-neutral-500">
+                    text-sm text-neutral-500
+                  </code>
+                </div>
+              </div>
+            </section>
+          </TabsContent>
+
+          {/* Spacing Section */}
+          <TabsContent value="spacing">
+            <section className="backdrop-blur-xl bg-white/50 rounded-lg p-8 shadow-md shadow-blue-100/10">
+              <h2 className="text-3xl font-semibold mb-8 text-neutral-800">
+                Spacing System
+              </h2>
+
+              <div className="space-y-8">
+                {[4, 8, 12, 16, 24, 32].map((size) => (
+                  <div key={size} className="flex items-center gap-4">
+                    <div
+                      className="bg-gradient-to-r from-blue-500 to-sky-500 rounded-sm"
+                      style={{ width: size, height: size }}
+                    ></div>
+                    <code className="text-sm text-neutral-600">
+                      {size}px ({size / 16}rem)
+                    </code>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+}
